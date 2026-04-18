@@ -139,7 +139,7 @@
         th { border: 1px solid #000; background: var(--gray); padding: 6px; font-size: 10px; text-align: left; }
         td { border: 1px solid #000; padding: 5px; vertical-align: top; }
 
-        .row-total-cell { font-weight: bold; text-align: right; font-size: 12px; }
+        .row-total-cell { font-weight: bold; text-align: right; font-size: 11px; }
 
         .summary-wrapper {
             display: grid;
@@ -169,7 +169,6 @@
             .controls, .no-print { display: none !important; }
             .page { box-shadow: none; border: none; width: 95%; padding: 5; }
             input, textarea, select { border: none !important; outline: none; -webkit-appearance: none; }
-            /* Force Eway to remain hidden if not explicitly toggled to grid */
             #eway-section:not([style*="display: grid"]) { display: none !important; }
             #eway-section[style*="display: grid"] { display: grid !important; border: 1px solid #000;}
         }
@@ -198,7 +197,7 @@
     <div class="header">
         <div class="company-brand">
             <h1 id="doc-title">QUOTATION</h1>
-            <h2 id="doc-title">TECHZONE IT SOLUTIONS</h2>
+            <h2 id="doc-sub-title">TECHZONE IT SOLUTIONS</h2>
             <div class="company-details">
                 Reg. Office: F-425A, Adarsh Enclave Phase-6, Aya Nagar, New Delhi - 110047<br>
                 Branch: #61, Terrace Floor, Deepak Building, 13, Nehru Place, New Delhi - 110019<br>
@@ -247,11 +246,12 @@
         <thead>
             <tr>
                 <th width="5%">#</th>
-                <th width="40%">Item Category & Specifications</th>
+                <th width="35%">Item Category & Specifications</th>
                 <th width="10%">HSN/SAC</th>
                 <th width="8%">Qty</th>
-                <th width="15%">Price (₹)</th>
-                <th width="17%">Total (₹)</th>
+                <th width="12%">Price (₹)</th>
+                <th width="8%">Disc%</th>
+                <th width="15%">Total (₹)</th>
                 <th width="5%" class="no-print"></th>
             </tr>
         </thead>
@@ -281,6 +281,7 @@
                 <tr id="sgst-row"><td class="label">SGST (9%)</td><td class="val" id="sgst-val">₹ 0.00</td></tr>
                 <tr id="igst-row" style="display:none;"><td class="label">IGST (18%)</td><td class="val" id="igst-val">₹ 0.00</td></tr>
                 <tr><td class="label">Round Off</td><td class="val" id="round-off">0.00</td></tr>
+                <tr><td class="label" style="color: #e74c3c;">Total Discount (-)</td><td class="val" id="total-discount" style="color: #e74c3c;">₹ 0.00</td></tr>
                 <tr class="grand-total"><td class="label">GRAND TOTAL</td><td class="val" id="grand-total">₹ 0.00</td></tr>
             </table>
             <div class="amount-words">
@@ -350,6 +351,7 @@
             <td><input type="text" value="8471"></td>
             <td><input type="number" class="qty" value="1" oninput="calculateTotals()"></td>
             <td><input type="number" class="price" value="0" oninput="calculateTotals()"></td>
+            <td><input type="number" class="disc" value="0" oninput="calculateTotals()"></td>
             <td class="row-total-cell">0.00</td>
             <td class="no-print" style="text-align:center;"><button onclick="this.closest('tr').remove(); calculateTotals();" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">×</button></td>
         `;
@@ -357,40 +359,50 @@
     }
 
     function calculateTotals() {
-        let taxable = 0;
+        let grossTaxable = 0;
+        let totalDiscount = 0;
+
         document.querySelectorAll('#item-table tr').forEach(row => {
             const q = parseFloat(row.querySelector('.qty').value) || 0;
             const p = parseFloat(row.querySelector('.price').value) || 0;
-            const t = q * p;
-            row.querySelector('.row-total-cell').innerText = t.toFixed(2);
-            taxable += t;
+            const d = parseFloat(row.querySelector('.disc').value) || 0;
+            
+            const gross = q * p;
+            const discountAmount = gross * (d / 100);
+            const net = gross - discountAmount;
+            
+            row.querySelector('.row-total-cell').innerText = net.toFixed(2);
+            grossTaxable += gross;
+            totalDiscount += discountAmount;
         });
 
+        const netTaxable = grossTaxable - totalDiscount;
         const isInter = document.getElementById('state-toggle').value === 'INTER';
         const gstRate = 0.18; 
         let cgst = 0, sgst = 0, igst = 0;
 
         if(isInter) {
-            igst = taxable * gstRate;
+            igst = netTaxable * gstRate;
             document.getElementById('cgst-row').style.display = 'none';
             document.getElementById('sgst-row').style.display = 'none';
             document.getElementById('igst-row').style.display = 'table-row';
         } else {
-            cgst = taxable * (gstRate/2);
-            sgst = taxable * (gstRate/2);
+            cgst = netTaxable * (gstRate/2);
+            sgst = netTaxable * (gstRate/2);
             document.getElementById('cgst-row').style.display = 'table-row';
             document.getElementById('sgst-row').style.display = 'table-row';
             document.getElementById('igst-row').style.display = 'none';
         }
 
-        const rawTotal = taxable + cgst + sgst + igst;
+        const rawTotal = netTaxable + cgst + sgst + igst;
         const finalTotal = Math.round(rawTotal);
         const roundOff = finalTotal - rawTotal;
 
-        document.getElementById('subtotal').innerText = "₹ " + taxable.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('subtotal').innerText = "₹ " + grossTaxable.toLocaleString('en-IN', {minimumFractionDigits: 2});
         document.getElementById('cgst-val').innerText = "₹ " + cgst.toLocaleString('en-IN', {minimumFractionDigits: 2});
         document.getElementById('sgst-val').innerText = "₹ " + sgst.toLocaleString('en-IN', {minimumFractionDigits: 2});
         document.getElementById('igst-val').innerText = "₹ " + igst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('total-discount').innerText = "₹ " + totalDiscount.toLocaleString('en-IN', {minimumFractionDigits: 2});
         document.getElementById('round-off').innerText = roundOff.toFixed(2);
         document.getElementById('grand-total').innerText = "₹ " + finalTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
         document.getElementById('amt-words').innerText = numberToWords(finalTotal) + " Rupees Only";
