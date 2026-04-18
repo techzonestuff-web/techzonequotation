@@ -3,439 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Techzone IT Solutions - Billing & Quotation</title>
+    <title>Techzone IT Solutions - GST Billing System</title>
     <style>
         :root {
             --primary: #000000;
             --secondary: #ffffff;
+            --gray: #f4f4f4;
             --border: #000000;
         }
 
-        * { 
-            box-sizing: border-box; 
-            font-family: Arial, sans-serif; 
-            text-shadow: none !important;
-            -webkit-text-stroke: 0px transparent !important;
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
 
         body { 
-            background-color: #f0f0f0; 
+            background-color: #525659; 
             margin: 0; 
-            padding: 20px; 
-            color: var(--primary); 
+            padding: 40px 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
         }
 
-        .mode-selector {
-            max-width: 850px;
-            margin: 0 auto 20px auto;
+        /* UI Controls (Hidden on Print) */
+        .controls {
+            width: 210mm;
+            background: #333;
+            padding: 15px;
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-radius: 8px 8px 0 0;
+            color: white;
+            align-items: center;
         }
 
-        .mode-btn {
-            padding: 10px 20px;
-            border: 1px solid #000;
-            background: #fff;
+        .btn {
+            padding: 10px 15px;
             cursor: pointer;
+            border: none;
             font-weight: bold;
-            flex: 1;
+            text-transform: uppercase;
+            font-size: 10px;
+            border-radius: 4px;
         }
 
-        .mode-btn.active {
-            background: #000;
-            color: #fff;
+        .btn-primary { background: #fff; color: #000; }
+        .btn-active { background: #2ecc71; color: white; }
+        .btn-print { background: #e74c3c; color: white; margin-left: auto; }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 4px;
         }
 
-        .container {
-            max-width: 850px;
-            margin: auto;
-            background: var(--secondary);
-            padding: 40px;
-            border: 1px solid var(--primary);
+        /* A4 Page Styling */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
             position: relative;
         }
 
+        /* HEADER ALIGNMENT FIX */
         .header {
             display: flex;
             justify-content: space-between;
             border-bottom: 2px solid var(--primary);
-            padding-bottom: 15px;
+            padding-bottom: 10px;
             margin-bottom: 20px;
             align-items: flex-start;
         }
 
-        #main-title { 
-            margin: 0 0 5px 0; 
-            font-size: 32px; 
-            text-transform: uppercase; 
-            font-weight: bold;
-        }
+        .company-brand h1 { margin: 0; font-size: 28px; letter-spacing: 1px; }
+        .company-brand h2 { margin: 0; font-size: 16px; letter-spacing: 1px; }
+        .company-details { font-size: 10px; line-height: 1.4; margin-top: 5px; color: #333; }
 
-        /* Targetting the Brand Name specifically */
-        .brand-name {
-            font-size: 18px; /* Slightly bigger as requested */
-            font-weight: bold; 
+        .doc-meta { width: 260px; }
+        .badge-gst { border: 1px solid #000; padding: 4px 8px; font-weight: bold; display: block; text-align: center; margin-bottom: 15px; font-size: 14px; }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 8px;
-            display: block;
-            text-transform: uppercase;
         }
-
-        .company-info p { margin: 2px 0; font-size: 11px; line-height: 1.4; }
-
-        .gst-badge { 
-            border: 1px solid var(--primary); 
-            padding: 5px 10px; 
+        .meta-row label { font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        .meta-row input { 
+            width: 160px; 
+            text-align: right; 
+            border: none; 
             font-weight: bold; 
-            font-size: 13px;
-            display: inline-block;
-            margin-bottom: 10px;
+            font-size: 12px; 
+            padding: 0;
         }
 
-        .section-title {
-            border-bottom: 1px solid var(--primary);
-            padding: 5px 0;
-            margin: 25px 0 10px 0;
-            font-size: 14px;
-            font-weight: bold;
+        .section-label { 
+            background: var(--gray); 
+            padding: 5px; 
+            font-weight: bold; 
+            font-size: 11px; 
+            border-bottom: 1px solid #000;
+            margin-bottom: 10px;
             text-transform: uppercase;
         }
 
-        .client-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
-
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+        .input-group { margin-bottom: 8px; }
+        .input-group label { display: block; font-size: 9px; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
         
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid var(--border);
-            font-size: 14px;
-            background-color: #fff;
-            outline: none;
+        input, textarea, select { 
+            width: 100%; 
+            border: 1px solid #ddd; 
+            padding: 4px; 
+            font-size: 11px; 
+            background: transparent;
         }
 
-        td textarea {
-            resize: vertical;
-            min-height: 35px;
-            display: block;
+        #eway-section {
+            border: 1px solid #000;
+            background: #fafafa;
+            padding: 12px;
+            margin-bottom: 20px;
+            display: none; 
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
         }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { 
-            border: 1px solid var(--primary); 
-            background: #f2f2f2; 
-            padding: 10px; 
-            font-size: 12px; 
-            text-align: left;
-        }
-        td { border: 1px solid var(--primary); padding: 8px; }
-        
-        .btn-add { 
-            background: #000; 
-            color: #fff; 
-            border: none; 
-            padding: 10px 20px; 
-            cursor: pointer; 
-            margin-top: 15px; 
-            font-size: 12px;
-            font-weight: bold;
+        th { border: 1px solid #000; background: var(--gray); padding: 6px; font-size: 10px; text-align: left; }
+        td { border: 1px solid #000; padding: 5px; vertical-align: top; }
+
+        .row-total-cell { font-weight: bold; text-align: right; font-size: 12px; }
+
+        .summary-wrapper {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 40px;
+            margin-top: 20px;
         }
 
-        .totals-wrapper {
+        .summary-table { width: 100%; }
+        .summary-table td { border: none; padding: 4px 0; }
+        .summary-table .label { text-align: left; font-weight: bold; font-size: 12px; }
+        .summary-table .val { text-align: right; font-size: 12px; }
+        .grand-total { border-top: 2px solid #000 !important; border-bottom: 2px solid #000 !important; font-size: 15px !important; font-weight: bold; }
+
+        .footer-sign {
+            margin-top: 40px;
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
+            align-items: flex-end;
         }
 
-        .terms-area { width: 55%; }
-        .pricing-area { width: 40%; }
-
-        .totals-table td { border: none; padding: 6px; text-align: right; }
-        .totals-table .label { text-align: left; font-weight: bold; }
-        
-        .grand-total-row { border-top: 2px solid var(--primary) !important; font-size: 18px; font-weight: bold; }
-
-        .footer-sigs {
-            margin-top: 60px;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .signatory-box {
-            text-align: center;
-            border-top: 1px solid var(--primary);
-            width: 250px;
-            padding-top: 8px;
-            font-size: 13px;
-        }
-
-        .brand-footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 10px;
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-            letter-spacing: 2px;
-            font-weight: bold;
-        }
-
-        .actions { position: fixed; bottom: 30px; right: 30px; }
-        .btn-print { background: #000; color: #fff; padding: 15px 30px; border: none; font-weight: bold; cursor: pointer; }
+        .sign-box { text-align: center; width: 220px; }
+        .sign-line { border-top: 1px solid #000; margin-top: 60px; padding-top: 5px; font-size: 11px; font-weight: bold; }
 
         @media print {
-            body { padding: 0; background-color: #fff; }
-            .container { border: none; width: 100%; max-width: 100%; margin: 0; padding: 20px; }
-            .actions, .btn-remove, .btn-add, .no-print, .mode-selector { display: none !important; }
-            input, select, textarea { border: none; background: transparent; resize: none; appearance: none; -webkit-appearance: none; }
+            body { background: white; padding: 0; }
+            .controls, .no-print { display: none !important; }
+            .page { box-shadow: none; border: none; width: 95%; padding: 5; }
+            input, textarea, select { border: none !important; outline: none; -webkit-appearance: none; }
+            /* Force Eway to remain hidden if not explicitly toggled to grid */
+            #eway-section:not([style*="display: grid"]) { display: none !important; }
+            #eway-section[style*="display: grid"] { display: grid !important; border: 1px solid #000;}
         }
     </style>
 </head>
 <body>
 
-<div class="mode-selector no-print">
-    <button id="btn-quote" class="mode-btn active" onclick="switchMode('quote')">CREATE QUOTATION</button>
-    <button id="btn-bill" class="mode-btn" onclick="switchMode('bill')">CREATE TAX INVOICE</button>
+<div class="controls no-print">
+    <button class="btn btn-primary btn-active" onclick="setMode('QUOTE', this)">Quotation</button>
+    <button class="btn btn-primary" onclick="setMode('INVOICE', this)">Tax Invoice</button>
+    
+    <div class="toggle-switch">
+        <input type="checkbox" id="toggle-eway" onchange="toggleEwayManual()"> 
+        <label for="toggle-eway">ADD E-WAY BILL</label>
+    </div>
+
+    <select id="state-toggle" onchange="calculateTotals()" style="width: 180px; background: white; border: none; height: 30px; padding: 0 10px; border-radius: 4px;">
+        <option value="INTRA">Intra-State (CGST + SGST)</option>
+        <option value="INTER">Inter-State (IGST Only)</option>
+    </select>
+    
+    <button class="btn btn-print" onclick="window.print()">Print / Save PDF</button>
 </div>
 
-<div class="container">
+<div class="page" id="invoice">
     <div class="header">
-        <div class="company-info">
-            <h1 id="main-title">QUOTATION</h1>
-            <span class="brand-name">TECHZONE IT SOLUTIONS</span>
-            <p><strong>Registered Office:</strong> F-425A, Adarsh Enclave Phase-6, Aya Nagar, New Delhi - 47</p>
-            <p><strong>Branch:</strong> Office Space No. 61, Terrace Floor, Deepak Building, 13, Nehru Place, New Delhi - 19</p>
-            <p><strong>Phone:</strong> +91 9873184522, +91 9217473955</p>
-            <p><strong>Email:</strong> techzone.dlh@gmail.com</p>
-        </div>
-        <div class="gst-box" style="text-align: right;">
-            <div class="gst-badge">GSTIN: 07CESPS4009B1ZG</div>
-            <div style="margin-top: 5px; font-size: 14px;">
-                <p><strong><span id="number-label">Quote #</span>:</strong> <span id="q-no"></span></p>
-                <p><strong>Date:</strong> <input type="date" id="q-date" style="width: 135px;"></p>
+        <div class="company-brand">
+            <h1 id="doc-title">QUOTATION</h1>
+            <h2 id="doc-title">TECHZONE IT SOLUTIONS</h2>
+            <div class="company-details">
+                Reg. Office: F-425A, Adarsh Enclave Phase-6, Aya Nagar, New Delhi - 110047<br>
+                Branch: #61, Terrace Floor, Deepak Building, 13, Nehru Place, New Delhi - 110019<br>
+                Phone: +91 9873184522, 9217473955 | Email: techzone.dlh@gmail.com
             </div>
         </div>
-    </div>
-
-    <div class="section-title">Client Information</div>
-    <div class="client-grid">
-        <div>
-            <div class="input-group">
-                <label>Client Name</label>
-                <input type="text" placeholder="Individual Name">
+        <div class="doc-meta">
+            <div class="badge-gst">GSTIN: 07CESPS4009B1ZG</div>
+            <div class="meta-row">
+                <label id="num-label">Quote No:</label>
+                <input type="text" id="doc-id">
             </div>
-            <div class="input-group">
-                <label>Company Name</label>
-                <input type="text" placeholder="Organization Name">
-            </div>
-            <div class="input-group">
-                <label>Client GSTIN (Optional)</label>
-                <input type="text" placeholder="07XXXXX0000X0Z0">
-            </div>
-        </div>
-        <div>
-            <div class="input-group">
-                <label>Contact Number</label>
-                <input type="text" placeholder="+91">
-            </div>
-            <div class="input-group">
-                <label>Billing Address</label>
-                <textarea rows="3" placeholder="Full Address, City, State, ZIP"></textarea>
+            <div class="meta-row">
+                <label>Date:</label>
+                <input type="text" id="doc-date-display">
             </div>
         </div>
     </div>
 
-    <div class="section-title">Item Details</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 15px;">
+        <div>
+            <div class="section-label">Bill To (Consignee)</div>
+            <input type="text" placeholder="Client / Company Name" style="font-weight:bold; font-size:14px; margin-bottom: 5px;">
+            <textarea rows="3" placeholder="Full Billing Address, State & ZIP"></textarea>
+            <input type="text" placeholder="Client GSTIN" style="margin-top: 5px;">
+        </div>
+        <div>
+            <div class="section-label">Shipping & Supply</div>
+            <div class="input-group"><label>Place of Supply</label><input type="text" placeholder="State/UT Name"></div>
+            <div class="input-group"><label>Terms of Delivery</label><input type="text" placeholder="Hand / Courier / Door"></div>
+        </div>
+    </div>
+
+    <div id="eway-section">
+        <div style="grid-column: span 4; font-size: 11px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 5px;">E-WAY BILL DETAILS</div>
+        <div class="input-group"><label>E-Way Bill No</label><input type="text" placeholder="12 Digit Unique No"></div>
+        <div class="input-group"><label>Date & Time</label><input type="text" placeholder="DD/MM/YYYY HH:MM"></div>
+        <div class="input-group"><label>Vehicle No</label><input type="text" placeholder="DL-XX-XXXX"></div>
+        <div class="input-group"><label>Mode of Transport</label><input type="text" placeholder="Road/Air"></div>
+        <div class="input-group" style="grid-column: span 2;"><label>Transporter Name / ID</label><input type="text"></div>
+        <div class="input-group"><label>Doc / LR No</label><input type="text"></div>
+        <div class="input-group"><label>Approx Distance</label><input type="text"></div>
+    </div>
+
     <table>
         <thead>
             <tr>
-                <th width="28%">Category</th>
-                <th width="32%">Specifications</th>
+                <th width="5%">#</th>
+                <th width="40%">Item Category & Specifications</th>
+                <th width="10%">HSN/SAC</th>
                 <th width="8%">Qty</th>
-                <th width="12%">Price (₹)</th>
-                <th width="15%">Total (₹)</th>
-                <th class="no-print" width="5%"></th>
+                <th width="15%">Price (₹)</th>
+                <th width="17%">Total (₹)</th>
+                <th width="5%" class="no-print"></th>
             </tr>
         </thead>
-        <tbody id="table-body"></tbody>
+        <tbody id="item-table"></tbody>
     </table>
-    <button class="btn-add no-print" onclick="addRow()">+ ADD LINE ITEM</button>
+    <button class="btn btn-primary no-print" onclick="addRow()" style="margin-top:10px; background:#000; color:#fff;">+ Add Item</button>
 
-    <div class="totals-wrapper">
-        <div class="terms-area">
-            <div class="section-title" style="margin-top: 0;">Terms & Conditions</div>
-            <textarea id="terms-box" style="height: 110px; font-size: 11px; line-height: 1.5;">1. 50% advance payment for order confirmation.
-2. Balance payment on delivery/installation.
-3. Warranty as per manufacturer policy.
-4. Quotation valid for 3 days.
-5. Goods once sold are not returnable.</textarea>
-            <div style="margin-top: 15px; font-size: 13px;">
+    <div class="summary-wrapper">
+        <div>
+            <div class="section-label">Bank Details</div>
+            <div class="bank-details" style="font-size: 10px;">
+                <strong>Bank:</strong> __________________<br>
+                <strong>Name:</strong> __________________<br>
+                <strong>A/c No:</strong> __________________<br>
+                <strong>IFSC:</strong> __________________<br>
+                <strong>Branch:</strong> __________________
+            </div>
+
+            <div class="section-label" style="margin-top:20px;">Terms & Conditions</div>
+            <textarea id="terms-area" rows="5" style="font-size:9px; border:none; line-height: 1.4;"></textarea>
+        </div>
+
+        <div>
+            <table class="summary-table">
+                <tr><td class="label">Taxable Subtotal</td><td class="val" id="subtotal">₹ 0.00</td></tr>
+                <tr id="cgst-row"><td class="label">CGST (9%)</td><td class="val" id="cgst-val">₹ 0.00</td></tr>
+                <tr id="sgst-row"><td class="label">SGST (9%)</td><td class="val" id="sgst-val">₹ 0.00</td></tr>
+                <tr id="igst-row" style="display:none;"><td class="label">IGST (18%)</td><td class="val" id="igst-val">₹ 0.00</td></tr>
+                <tr><td class="label">Round Off</td><td class="val" id="round-off">0.00</td></tr>
+                <tr class="grand-total"><td class="label">GRAND TOTAL</td><td class="val" id="grand-total">₹ 0.00</td></tr>
+            </table>
+            <div class="amount-words">
                 <strong>Amount in Words:</strong><br>
-                <span id="amount-in-words" style="font-weight: bold; text-transform: capitalize;">Zero Rupees Only</span>
+                <span id="amt-words" style="font-size: 10px;">Zero Rupees Only</span>
             </div>
         </div>
-        <div class="pricing-area">
-            <table class="totals-table" style="width: 100%;">
-                <tr>
-                    <td class="label">Subtotal</td>
-                    <td id="subtotal">0.00</td>
-                </tr>
-                <tr>
-                    <td class="label">
-                        GST (%) 
-                        <select id="gst-rate" onchange="calculateTotals()" style="width: 55px; padding: 2px; font-size: 12px;">
-                            <option value="0">0</option>
-                            <option value="5">5</option>
-                            <option value="12">12</option>
-                            <option value="18" selected>18</option>
-                            <option value="28">28</option>
-                        </select>
-                    </td>
-                    <td id="gst-amount">0.00</td>
-                </tr>
-                <tr>
-                    <td class="label">Discount (₹)</td>
-                    <td><input type="number" id="discount" value="0" oninput="calculateTotals()" style="text-align: right; width: 80px; padding: 4px;"></td>
-                </tr>
-                <tr class="grand-total-row">
-                    <td class="label">Grand Total</td>
-                    <td id="grand-total">₹ 0.00</td>
-                </tr>
-            </table>
+    </div>
+
+    <div class="footer-sign">
+        <div style="font-size: 9px; color: #555;">
+            * E-Way Bill is mandatory for inter-state movement of goods > ₹50,000.<br>
+            * Certified that the particulars given above are true and correct.
+        </div>
+        <div class="sign-box">
+            <div style="font-size: 10px; margin-bottom: 50px;">For <strong>TECHZONE IT SOLUTIONS</strong></div>
+            <div class="sign-line">Authorised Signatory</div>
         </div>
     </div>
-
-    <div class="footer-sigs">
-        <div class="signatory-box">
-            Authorized Signatory<br>
-            <strong style="font-size: 11px;">TECHZONE IT SOLUTIONS</strong>
-        </div>
-    </div>
-
-    <div class="brand-footer">
-        APPLE | DELL | HP | LENOVO | ASUS | ACER | MSI | GIGABYTE | INTEL | AMD
-    </div>
-</div>
-
-<div class="actions">
-    <button class="btn-print" onclick="window.print()">PRINT / DOWNLOAD PDF</button>
 </div>
 
 <script>
-    const categories = [
-        "Processor (CPU)", "Motherboard", "Memory (RAM)", "Solid State Drive (SSD)", 
-        "Hard Disk Drive (HDD)", "Graphics Card (GPU)", "Power Supply (PSU)", 
-        "Cabinet / Chassis", "CPU Cooler / Liquid Cooler", "Monitor", 
-        "Laptop", "Desktop PC (Branded)", "All-in-One PC", 
-        "Keyboard & Mouse", "UPS / Inverter", "Networking (Router/Switch)", 
-        "Printer / Scanner", "Cables / Adapters / Converters", 
-        "Speakers / Headsets", "Webcam / Mic", "External Storage",
-        "Operating System (Windows)", "Antivirus / Software", 
-        "Service / Labor / Assembly", "Annual Maintenance (AMC)", "Other (Type in Spec)"
-    ];
+    const itemCategories = ["Processor (CPU)", "Motherboard", "Memory (RAM)", "Solid State Drive (SSD)", "Hard Disk Drive (HDD)", "Graphics Card (GPU)", "Power Supply (PSU)", "Cabinet / Chassis", "Monitor", "Laptop", "Desktop PC", "All-in-One PC", "Keyboard & Mouse", "UPS / Inverter", "Networking (Router/Switch)", "Printer / Scanner", "Cables / Adapters", "Speakers / Headsets", "Webcam / Mic", "External Storage", "Operating System", "Antivirus / Software", "Service / Labor / Assembly", "Annual Maintenance (AMC)", "Other"];
+    const termsText = {
+        QUOTE: "1. 50% Advance for order confirmation.\n2. Balance on delivery.\n3. Warranty as per manufacturer policy.\n4. Quote valid for 3 days.\n5. Goods once sold are not returnable.",
+        INVOICE: "1. 100% Payment due upon receipt.\n2. Warranty as per manufacturer policy.\n3. Goods once sold are not returnable.\n4. Subject to Delhi Jurisdiction."
+    };
 
-    const quoteTerms = `1. 50% advance payment for order confirmation.
-2. Balance payment on delivery/installation.
-3. Warranty as per manufacturer policy.
-4. Quotation valid for 3 days.
-5. Goods once sold are not returnable.`;
+    let currentMode = 'QUOTE';
 
-    const billTerms = `1. 50% advance payment for order confirmation.
-2. Balance payment on delivery/installation.
-3. Warranty as per manufacturer policy.
-4. Goods once sold are not returnable.`;
-
-    function switchMode(mode) {
-        const title = document.getElementById('main-title');
-        const numLabel = document.getElementById('number-label');
-        const btnQuote = document.getElementById('btn-quote');
-        const btnBill = document.getElementById('btn-bill');
-        const termsBox = document.getElementById('terms-box');
+    function setMode(mode, btn) {
+        currentMode = mode;
+        document.querySelectorAll('.controls .btn').forEach(b => b.classList.remove('btn-active'));
+        btn.classList.add('btn-active');
+        document.getElementById('doc-title').innerText = mode === 'QUOTE' ? 'QUOTATION' : 'TAX INVOICE';
+        document.getElementById('num-label').innerText = mode === 'QUOTE' ? 'Quote No:' : 'Invoice No:';
         
-        btnQuote.classList.remove('active');
-        btnBill.classList.remove('active');
-        
-        if(mode === 'bill') {
-            title.innerText = "TAX INVOICE";
-            numLabel.innerText = "Invoice #";
-            btnBill.classList.add('active');
-            termsBox.value = billTerms;
-        } else {
-            title.innerText = "QUOTATION";
-            numLabel.innerText = "Quote #";
-            btnQuote.classList.add('active');
-            termsBox.value = quoteTerms;
-        }
-    }
-
-    function addRow() {
-        const tbody = document.getElementById('table-body');
-        const row = document.createElement('tr');
-        let options = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-        
-        row.innerHTML = `
-            <td><select onchange="handleOtherSelect(this)">${options}</select></td>
-            <td><textarea rows="1" placeholder="Brand/Model/Spec"></textarea></td>
-            <td><input type="number" value="1" min="1" oninput="calculateTotals()" class="qty"></td>
-            <td><input type="number" value="0" min="0" oninput="calculateTotals()" class="price"></td>
-            <td class="row-total" style="font-weight:bold;">0.00</td>
-            <td class="no-print" style="text-align:center;"><button onclick="this.closest('tr').remove(); calculateTotals();" style="cursor:pointer; border:1px solid #000; background:none; padding: 2px 8px;">×</button></td>
-        `;
-        tbody.appendChild(row);
+        toggleEwayManual();
+        document.getElementById('terms-area').value = termsText[mode];
+        generateID(mode);
         calculateTotals();
     }
 
-    function handleOtherSelect(select) {
-        if(select.value === "Other (Type in Spec)") {
-            const row = select.closest('tr');
-            const specArea = row.querySelector('textarea');
-            specArea.placeholder = "Type custom category here...";
-            specArea.focus();
-        }
+    function toggleEwayManual() {
+        const isChecked = document.getElementById('toggle-eway').checked;
+        const ewayBox = document.getElementById('eway-section');
+        ewayBox.style.display = (isChecked && currentMode === 'INVOICE') ? 'grid' : 'none';
+    }
+
+    function generateID(mode) {
+        const rand = Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('doc-id').value = (mode === 'QUOTE' ? 'TZ/Q/' : 'TZ/INV/') + rand;
+    }
+
+    function addRow() {
+        const tbody = document.getElementById('item-table');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${tbody.rows.length + 1}</td>
+            <td>
+                <select class="no-print" onchange="this.nextElementSibling.value = this.value + ': '" style="margin-bottom:5px;">
+                    <option value="">-- Choose Category --</option>
+                    ${itemCategories.map(c => `<option value="${c}">${c}</option>`).join('')}
+                </select>
+                <textarea rows="2" placeholder="Specifications..."></textarea>
+            </td>
+            <td><input type="text" value="8471"></td>
+            <td><input type="number" class="qty" value="1" oninput="calculateTotals()"></td>
+            <td><input type="number" class="price" value="0" oninput="calculateTotals()"></td>
+            <td class="row-total-cell">0.00</td>
+            <td class="no-print" style="text-align:center;"><button onclick="this.closest('tr').remove(); calculateTotals();" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">×</button></td>
+        `;
+        tbody.appendChild(tr);
     }
 
     function calculateTotals() {
-        const rows = document.querySelectorAll('#table-body tr');
-        let subtotal = 0;
-        rows.forEach(row => {
-            const qty = parseFloat(row.querySelector('.qty').value) || 0;
-            const price = parseFloat(row.querySelector('.price').value) || 0;
-            const total = qty * price;
-            row.querySelector('.row-total').innerText = total.toFixed(2);
-            subtotal += total;
+        let taxable = 0;
+        document.querySelectorAll('#item-table tr').forEach(row => {
+            const q = parseFloat(row.querySelector('.qty').value) || 0;
+            const p = parseFloat(row.querySelector('.price').value) || 0;
+            const t = q * p;
+            row.querySelector('.row-total-cell').innerText = t.toFixed(2);
+            taxable += t;
         });
-        
-        const gstRate = parseFloat(document.getElementById('gst-rate').value);
-        const discount = parseFloat(document.getElementById('discount').value) || 0;
-        const gstAmount = (subtotal * gstRate) / 100;
-        const grandTotal = (subtotal + gstAmount) - discount;
 
-        document.getElementById('subtotal').innerText = subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-        document.getElementById('gst-amount').innerText = gstAmount.toLocaleString('en-IN', {minimumFractionDigits: 2});
-        document.getElementById('grand-total').innerText = '₹ ' + grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-        document.getElementById('amount-in-words').innerText = numberToIndianWords(Math.round(grandTotal)) + " Rupees Only";
+        const isInter = document.getElementById('state-toggle').value === 'INTER';
+        const gstRate = 0.18; 
+        let cgst = 0, sgst = 0, igst = 0;
+
+        if(isInter) {
+            igst = taxable * gstRate;
+            document.getElementById('cgst-row').style.display = 'none';
+            document.getElementById('sgst-row').style.display = 'none';
+            document.getElementById('igst-row').style.display = 'table-row';
+        } else {
+            cgst = taxable * (gstRate/2);
+            sgst = taxable * (gstRate/2);
+            document.getElementById('cgst-row').style.display = 'table-row';
+            document.getElementById('sgst-row').style.display = 'table-row';
+            document.getElementById('igst-row').style.display = 'none';
+        }
+
+        const rawTotal = taxable + cgst + sgst + igst;
+        const finalTotal = Math.round(rawTotal);
+        const roundOff = finalTotal - rawTotal;
+
+        document.getElementById('subtotal').innerText = "₹ " + taxable.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('cgst-val').innerText = "₹ " + cgst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('sgst-val').innerText = "₹ " + sgst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('igst-val').innerText = "₹ " + igst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('round-off').innerText = roundOff.toFixed(2);
+        document.getElementById('grand-total').innerText = "₹ " + finalTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('amt-words').innerText = numberToWords(finalTotal) + " Rupees Only";
+
+        // Auto-toggle E-way if > 50k
+        const toggleBtn = document.getElementById('toggle-eway');
+        if (currentMode === 'INVOICE' && finalTotal >= 50000 && !toggleBtn.checked) {
+            toggleBtn.checked = true;
+            toggleEwayManual();
+        }
     }
 
-    function numberToIndianWords(num) {
-        const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
-        const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-        const format = (n) => (n < 20) ? a[n] : b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
-        if (num === 0) return 'Zero';
-        let str = '';
-        if (num >= 10000000) { str += format(Math.floor(num / 10000000)) + 'Crore '; num %= 10000000; }
-        if (num >= 100000) { str += format(Math.floor(num / 100000)) + 'Lakh '; num %= 100000; }
-        if (num >= 1000) { str += format(Math.floor(num / 1000)) + 'Thousand '; num %= 1000; }
-        if (num >= 100) { str += format(Math.floor(num / 100)) + 'Hundred '; num %= 100; }
-        if (num > 0) str += format(num);
-        return str.trim();
+    function numberToWords(n) {
+        const a = ['','One ','Two ','Three ','Four ','Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+        const b = ['', '', 'Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+        const g = (n) => (n < 20) ? a[n] : b[Math.floor(n/10)] + (n%10 !== 0 ? ' ' + a[n%10] : '');
+        const wordify = (n) => {
+            if (n === 0) return '';
+            let s = '';
+            if (n >= 10000000) { s += wordify(Math.floor(n/10000000)) + 'Crore '; n %= 10000000; }
+            if (n >= 100000) { s += wordify(Math.floor(n/100000)) + 'Lakh '; n %= 100000; }
+            if (n >= 1000) { s += wordify(Math.floor(n/1000)) + 'Thousand '; n %= 1000; }
+            if (n >= 100) { s += g(Math.floor(n/100)) + 'Hundred '; n %= 100; }
+            if (n > 0) s += g(n);
+            return s;
+        };
+        return n === 0 ? 'Zero' : wordify(n);
     }
 
-    document.getElementById('q-date').valueAsDate = new Date();
-    document.getElementById('q-no').innerText = 'TZ-' + Math.floor(Math.random() * 900000 + 100000);
-    window.onload = addRow;
+    window.onload = () => {
+        document.getElementById('doc-date-display').value = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+        setMode('QUOTE', document.querySelector('.btn-active'));
+        addRow();
+    };
 </script>
 </body>
 </html>
