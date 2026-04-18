@@ -304,7 +304,18 @@
 </div>
 
 <script>
-    const itemCategories = ["Processor (CPU)", "Motherboard", "Memory (RAM)", "Solid State Drive (SSD)", "Hard Disk Drive (HDD)", "Graphics Card (GPU)", "Power Supply (PSU)", "Cabinet / Chassis", "Monitor", "Laptop", "Desktop PC", "All-in-One PC", "Keyboard & Mouse", "UPS / Inverter", "Networking (Router/Switch)", "Printer / Scanner", "Cables / Adapters", "Speakers / Headsets", "Webcam / Mic", "External Storage", "Operating System", "Antivirus / Software", "Service / Labor / Assembly", "Annual Maintenance (AMC)", "Other"];
+    const itemCategories = [
+        "Processor (CPU)", "Motherboard", "Memory (RAM)", "Solid State Drive (SSD)", 
+        "Hard Disk Drive (HDD)", "Graphics Card (GPU)", "Power Supply (PSU)", 
+        "Cabinet / Chassis", "CPU Cooler / Liquid Cooler", "Monitor", 
+        "Laptop", "Desktop PC (Branded)", "All-in-One PC", 
+        "Keyboard & Mouse", "UPS / Inverter", "Networking (Router/Switch)", 
+        "Printer / Scanner", "Cables / Adapters / Converters", 
+        "Speakers / Headsets", "Webcam / Mic", "External Storage",
+        "Operating System (Windows)", "Antivirus / Software", 
+        "Service / Labor / Assembly", "Annual Maintenance (AMC)", "Other (Type in Spec)"
+    ];
+
     const termsText = {
         QUOTE: "1. 50% Advance for order confirmation.\n2. Balance on delivery.\n3. Warranty as per manufacturer policy.\n4. Quote valid for 3 days.\n5. Goods once sold are not returnable.",
         INVOICE: "1. 100% Payment due upon receipt.\n2. Warranty as per manufacturer policy.\n3. Goods once sold are not returnable.\n4. Subject to Delhi Jurisdiction."
@@ -407,7 +418,6 @@
         document.getElementById('grand-total').innerText = "₹ " + finalTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
         document.getElementById('amt-words').innerText = numberToWords(finalTotal) + " Rupees Only";
 
-        // Auto-toggle E-way if > 50k
         const toggleBtn = document.getElementById('toggle-eway');
         if (currentMode === 'INVOICE' && finalTotal >= 50000 && !toggleBtn.checked) {
             toggleBtn.checked = true;
