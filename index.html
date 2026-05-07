@@ -1,382 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GST Calculator & PC Build Estimator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techzone IT Solutions | Estimator</title>
+    <style>
+        :root {
+            --primary: #ff8c00;
+            --primary-dark: #e06f00;
+            --bg-gray: #f8f9fa;
+            --text-dark: #333;
+            --border: #ddd;
+        }
 
-  <style>
-    *{
-      box-sizing:border-box;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      margin: 0;
-      padding: 20px;
-    }
+        body {
+            background: var(--bg-gray);
+            color: var(--text-dark);
+            padding: 20px;
+        }
 
-    .container {
-      max-width: 1000px;
-      margin: auto;
-    }
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
 
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
+        /* NAVIGATION TABS */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
 
-    .tab-btn {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      cursor: pointer;
-      background: #d9d9d9;
-      font-weight: bold;
-      border-radius: 8px;
-    }
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: #e0e0e0;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+            transition: 0.2s;
+        }
 
-    .tab-btn.active {
-      background: #007bff;
-      color: white;
-    }
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
 
-    .page {
-      display: none;
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
+        /* PAGE CARDS */
+        .page {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
 
-    .page.active {
-      display: block;
-    }
+        .page.active {
+            display: block;
+        }
 
-    h2 {
-      margin-top: 0;
-      color: #333;
-    }
+        .page-title {
+            margin-bottom: 25px;
+            font-size: 26px;
+            border-left: 6px solid var(--primary);
+            padding-left: 15px;
+            color: #222;
+        }
 
-    label {
-      font-weight: bold;
-      margin-top: 10px;
-      display: block;
-    }
+        /* FORMS */
+        .controls { margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+        }
 
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 15px;
-    }
+        input:focus { border-color: var(--primary); }
 
-    button {
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-      margin-top: 15px;
-      font-weight: bold;
-    }
+        .btn {
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
 
-    button:hover {
-      background: #0056b3;
-    }
+        .btn-secondary { background: #555; }
+        .btn-danger { background: #dc3545; width: auto; padding: 10px 15px; }
 
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f1f1f1;
-      border-radius: 8px;
-      line-height: 1.8;
-    }
+        /* ITEM ROWS */
+        .item-row {
+            display: grid;
+            grid-template-columns: 1.8fr 2fr 0.6fr 1fr auto;
+            gap: 12px;
+            background: #fdfdfd;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            align-items: flex-end;
+        }
 
-    .item-row {
-      display: grid;
-      grid-template-columns: 2fr 2fr 1fr 1fr auto;
-      gap: 10px;
-      margin-bottom: 10px;
-      align-items: end;
-    }
+        /* ESTIMATE */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0 10px 0;
+        }
 
-    .remove-btn {
-      background: red;
-      padding: 10px;
-      width: auto;
-    }
+        table th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
 
-    table th, table td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
-    }
+        /* SUMMARY BOX */
+        .summary-box {
+            margin-left: auto;
+            width: 320px;
+            text-align: right;
+            padding: 15px;
+            border-top: 2px solid var(--primary);
+        }
 
-    table th {
-      background: #007bff;
-      color: white;
-    }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
 
-    .grand-total {
-      margin-top: 20px;
-      font-size: 20px;
-      font-weight: bold;
-      text-align: right;
-      color: #007bff;
-    }
+        .grand-total {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
 
-    @media(max-width:768px){
-      .item-row{
-        grid-template-columns:1fr;
-      }
-    }
-  </style>
+        /* PRINT FIXES */
+        @media print {
+            body { background: white; padding: 0; }
+            
+            /* Hide the tabs and all control buttons */
+            .tabs, .controls, .btn, .remove-btn, .action-buttons { 
+                display: none !important; 
+            }
+
+            /* ONLY show the active page, hide the other one to prevent glitches */
+            .page { display: none !important; box-shadow: none; padding: 0; }
+            .page.active { display: block !important; }
+
+            .container { max-width: 100%; }
+            .page-title { border-left: 6px solid #ff8c00 !important; -webkit-print-color-adjust: exact; }
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
-
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="showPage('gstPage', this)">
-      GST Calculator
-    </button>
-
-    <button class="tab-btn" onclick="showPage('pcPage', this)">
-      PC Build Estimator
-    </button>
-  </div>
-
-  <!-- GST PAGE -->
-  <div class="page active" id="gstPage">
-    <h2>GST Calculator</h2>
-
-    <label>Select Calculation Type</label>
-    <select id="mode">
-      <option value="add">Add GST to Amount</option>
-      <option value="remove">Find Actual Cost from GST Included Amount</option>
-    </select>
-
-    <label>Amount (₹)</label>
-    <input type="number" id="amount" placeholder="Enter amount">
-
-    <label>GST Rate (%)</label>
-    <input type="number" id="gst" placeholder="Enter GST percentage">
-
-    <button onclick="calculateGST()">Calculate GST</button>
-
-    <div class="result" id="gstResult">
-      Result will appear here
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showPage('gstPage', this)">GST Calculator</button>
+        <button class="tab-btn" onclick="showPage('pcPage', this)"> Estimate</button>
     </div>
-  </div>
 
-  <!-- PC BUILD PAGE -->
-  <div class="page" id="pcPage">
-    <h2>Custom PC Build Estimator</h2>
+    <div class="page active" id="gstPage">
+        <h2 class="page-title">GST Calculator</h2>
+        <div class="form-group">
+            <label>Calculation Type</label>
+            <select id="mode">
+                <option value="add">Add GST (+)</option>
+                <option value="remove">Remove GST (Inclusive)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Amount (₹)</label>
+            <input type="number" id="amount" placeholder="Enter base amount">
+        </div>
+        <div class="form-group">
+            <label>GST Rate (%)</label>
+            <input type="number" id="gst" value="18">
+        </div>
+        <button class="btn" onclick="calculateGST()">Calculate</button>
+        <div id="gstResult" style="margin-top:20px; padding:15px; background:#f2f2f2; border-radius:8px;"></div>
+    </div>
 
-    <div id="itemsContainer"></div>
+    <div class="page" id="pcPage">
+        <h2 class="page-title"> Estimate</h2>
+        
+        <div class="controls">
+            <div id="itemsContainer"></div>
+            
+            <div style="margin-top: 15px; width: 220px;">
+                <label>Tax Rate for Quote (%)</label>
+                <input type="number" id="quoteGstRate" value="18">
+            </div>
 
-    <button onclick="addItem()">+ Add Component</button>
-    <button onclick="generateEstimate()">Generate Estimate</button>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn btn-secondary" onclick="addItem()">+ Add Item</button>
+                <button class="btn" onclick="generateEstimate()">Generate Estimate</button>
+            </div>
+        </div>
 
-    <div id="estimateOutput"></div>
-  </div>
+        <div id="estimateOutput">
+            </div>
 
+        <div class="action-buttons" style="margin-top: 30px;">
+            <button class="btn" onclick="window.print()" style="width: 100%;">Print Estimate/Save</button>
+        </div>
+    </div>
 </div>
 
 <script>
-
-  // TAB SWITCHING
-  function showPage(pageId, btn) {
-    document.querySelectorAll('.page').forEach(page => {
-      page.classList.remove('active');
-    });
-
-    document.querySelectorAll('.tab-btn').forEach(button => {
-      button.classList.remove('active');
-    });
-
-    document.getElementById(pageId).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  // GST CALCULATOR
-  function calculateGST() {
-
-    const mode = document.getElementById("mode").value;
-    const amount = parseFloat(document.getElementById("amount").value);
-    const gstRate = parseFloat(document.getElementById("gst").value);
-    const resultDiv = document.getElementById("gstResult");
-
-    if (isNaN(amount) || isNaN(gstRate)) {
-      resultDiv.innerHTML = "Please enter valid numbers.";
-      return;
+    // Tab Management
+    function showPage(pageId, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        btn.classList.add('active');
     }
 
-    let gstAmount, total, basePrice;
-
-    if (mode === "add") {
-
-      gstAmount = (amount * gstRate) / 100;
-      total = amount + gstAmount;
-
-      resultDiv.innerHTML = `
-        Actual Price: <b>₹${amount.toFixed(2)}</b><br>
-        GST Amount (${gstRate}%): <b>₹${gstAmount.toFixed(2)}</b><br>
-        Total Price with GST: <b>₹${total.toFixed(2)}</b>
-      `;
-
-    } else {
-
-      basePrice = amount / (1 + gstRate / 100);
-      gstAmount = amount - basePrice;
-
-      resultDiv.innerHTML = `
-        GST Included Price: <b>₹${amount.toFixed(2)}</b><br>
-        Actual Price Before GST: <b>₹${basePrice.toFixed(2)}</b><br>
-        GST Amount (${gstRate}%): <b>₹${gstAmount.toFixed(2)}</b>
-      `;
+    // GST Tool Logic
+    function calculateGST() {
+        const mode = document.getElementById("mode").value;
+        const amount = parseFloat(document.getElementById("amount").value) || 0;
+        const gstRate = parseFloat(document.getElementById("gst").value) || 0;
+        const res = document.getElementById("gstResult");
+        
+        if (mode === "add") {
+            let gst = amount * (gstRate / 100);
+            res.innerHTML = `Base: ₹${amount.toLocaleString()} | GST: ₹${gst.toLocaleString()} | <b>Total: ₹${(amount + gst).toLocaleString()}</b>`;
+        } else {
+            let base = amount / (1 + (gstRate / 100));
+            res.innerHTML = `Incl: ₹${amount.toLocaleString()} | Base: ₹${base.toLocaleString()} | <b>Tax Part: ₹${(amount - base).toLocaleString()}</b>`;
+        }
     }
-  }
 
-  // COMPONENT LIST
-  const componentOptions = [
-    "Processor (CPU)",
-    "Motherboard",
-    "Memory (RAM)",
-    "Solid State Drive (SSD)",
-    "Hard Disk Drive (HDD)",
-    "Graphics Card (GPU)",
-    "Power Supply (PSU)",
-    "Cabinet / Chassis",
-    "CPU Cooler / Liquid Cooler",
-    "Monitor",
-    "Laptop",
-    "Desktop PC (Branded)",
-    "All-in-One PC",
-    "Keyboard & Mouse",
-    "UPS / Inverter",
-    "Networking (Router/Switch)",
-    "Printer / Scanner",
-    "Cables / Adapters / Converters",
-    "Speakers / Headsets",
-    "Webcam / Mic",
-    "External Storage",
-    "Operating System (Windows)",
-    "Antivirus / Software",
-    "Service / Labor / Assembly",
-    "Annual Maintenance (AMC)",
-    "Other (Type in Spec)"
-  ];
+    // Estimate Tool Logic
+    const componentOptions = [
+        "Processor (CPU)", "Motherboard", "Memory (RAM)", "Solid State Drive (SSD)",  
+        "Hard Disk Drive (HDD)", "Graphics Card (GPU)", "Power Supply (PSU)", 
+        "Cabinet / Chassis", "CPU Cooler / Liquid Cooler", "Monitor", 
+        "Laptop", "Desktop PC (Branded)", "All-in-One PC", 
+        "Keyboard & Mouse", "UPS / Inverter", "Networking (Router/Switch)", 
+        "Printer / Scanner", "Cables / Adapters / Converters", 
+        "Speakers / Headsets", "Webcam / Mic", "External Storage",
+        "Operating System (Windows)", "Antivirus / Software", 
+        "Service / Labor / Assembly", "Annual Maintenance (AMC)", "Other (Type in Spec)"
+    ];
 
-  // ADD ITEM ROW
-  function addItem() {
+    function addItem() {
+        const container = document.getElementById("itemsContainer");
+        const row = document.createElement("div");
+        row.className = "item-row";
+        let opts = componentOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+        row.innerHTML = `
+            <div><label>Category</label><select class="category">${opts}</select></div>
+            <div><label>Details</label><input type="text" class="spec" placeholder="Model/Brand"></div>
+            <div><label>Qty</label><input type="number" class="qty" value="1"></div>
+            <div><label>Rate (₹)</label><input type="number" class="rate" value="0"></div>
+            <button class="btn btn-danger remove-btn" onclick="this.parentElement.remove()">✕</button>
+        `;
+        container.appendChild(row);
+    }
 
-    const container = document.getElementById("itemsContainer");
+    function generateEstimate() {
+        const rows = document.querySelectorAll(".item-row");
+        const gstRate = parseFloat(document.getElementById("quoteGstRate").value) || 0;
+        let subtotal = 0;
 
-    const row = document.createElement("div");
-    row.className = "item-row";
+        let html = `<table><thead><tr><th>Category</th><th>Description</th><th>Qty</th><th>Unit Rate</th><th>Total</th></tr></thead><tbody>`;
+        
+        rows.forEach(row => {
+            const cat = row.querySelector(".category").value;
+            const spec = row.querySelector(".spec").value || "---";
+            const qty = parseFloat(row.querySelector(".qty").value) || 0;
+            const rate = parseFloat(row.querySelector(".rate").value) || 0;
+            const itemTotal = qty * rate;
+            subtotal += itemTotal;
+            html += `<tr><td>${cat}</td><td>${spec}</td><td>${qty}</td><td>₹${rate.toLocaleString()}</td><td>₹${itemTotal.toLocaleString()}</td></tr>`;
+        });
 
-    let optionsHTML = "";
+        const gstAmount = subtotal * (gstRate / 100);
+        const grandTotal = subtotal + gstAmount;
 
-    componentOptions.forEach(item => {
-      optionsHTML += `<option value="${item}">${item}</option>`;
-    });
+        html += `</tbody></table>`;
+        html += `
+            <div class="summary-box">
+                <div class="summary-row"><span>Sub-Total:</span><span>₹${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                <div class="summary-row"><span>GST (${gstRate}%):</span><span>₹${gstAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                <div class="grand-total"><span>Grand Total:</span><span>₹${grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+            </div>
+        `;
+        
+        document.getElementById("estimateOutput").innerHTML = html;
+    }
 
-    row.innerHTML = `
-      <div>
-        <label>Category</label>
-        <select class="category">
-          ${optionsHTML}
-        </select>
-      </div>
-
-      <div>
-        <label>Specification / Model</label>
-        <input type="text" class="spec" placeholder="Example: Intel i7 14700K">
-      </div>
-
-      <div>
-        <label>Qty</label>
-        <input type="number" class="qty" value="1">
-      </div>
-
-      <div>
-        <label>Rate (₹)</label>
-        <input type="number" class="rate" value="0">
-      </div>
-
-      <button class="remove-btn" onclick="this.parentElement.remove()">
-        X
-      </button>
-    `;
-
-    container.appendChild(row);
-  }
-
-  // GENERATE ESTIMATE
-  function generateEstimate() {
-
-    const rows = document.querySelectorAll(".item-row");
-
-    let html = `
-      <table>
-        <tr>
-          <th>Category</th>
-          <th>Specification</th>
-          <th>Qty</th>
-          <th>Rate</th>
-          <th>Total</th>
-        </tr>
-    `;
-
-    let grandTotal = 0;
-
-    rows.forEach(row => {
-
-      const category = row.querySelector(".category").value;
-      const spec = row.querySelector(".spec").value;
-      const qty = parseFloat(row.querySelector(".qty").value) || 0;
-      const rate = parseFloat(row.querySelector(".rate").value) || 0;
-
-      const total = qty * rate;
-      grandTotal += total;
-
-      html += `
-        <tr>
-          <td>${category}</td>
-          <td>${spec}</td>
-          <td>${qty}</td>
-          <td>₹${rate.toFixed(2)}</td>
-          <td>₹${total.toFixed(2)}</td>
-        </tr>
-      `;
-    });
-
-    html += `</table>`;
-
-    html += `
-      <div class="grand-total">
-        Grand Total: ₹${grandTotal.toFixed(2)}
-      </div>
-    `;
-
-    document.getElementById("estimateOutput").innerHTML = html;
-  }
-
-  // DEFAULT FIRST ROW
-  addItem();
-
+    // Default row on startup
+    addItem();
 </script>
 
 </body>
